@@ -15,6 +15,23 @@ const getAllUsers = (req, res) => {
     res.json(result);
   });
 };
+const getUserById = (req, res) => {
+  const id = req.params.id;
+  const query = `
+    SELECT users.id_user, users.email, users.id_person, persons.name, persons.lastName, persons.phone, persons.address
+    FROM users
+    LEFT JOIN persons ON users.id_person = persons.id_person
+    WHERE users.id_user = ?
+  `;
+
+  db.query(query, [id], (err, result) => {
+    if (err)
+      return res.status(500).json({ message: "Error al obtener usuario" });
+    if (result.length === 0)
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    res.json(result[0]);
+  });
+};
 
 // Create a new user
 const createUser = async (req, res) => {
@@ -138,4 +155,5 @@ module.exports = {
   updateUser,
   deleteUser,
   validationLogin,
+  getUserById,
 };

@@ -15,7 +15,7 @@ router.post(
 router.put("/:id", upload.single("photo"), personController.updatePerson);
 
 // get all persons
-router.get("/", personController.getAllPersons);
+router.get("/allPersons", personController.getAllPersons);
 // get ophoto by id
 router.get("/photo/:id", personController.getPhotoById);
 module.exports = router;

@@ -2,12 +2,14 @@ const db = require("../config/db");
 
 // method post to add a new person
 const createPerson = (req, res) => {
-  const { name, lastName, secondName, phone, address, birthDate } = req.body;
+  const { dni, name, lastName, secondName, phone, address, birthDate } =
+    req.body;
   const photo = req.file?.buffer;
 
   const id_user = req.user?.id_user;
 
   if (
+    !dni ||
     !name ||
     !lastName ||
     !secondName ||
@@ -27,13 +29,13 @@ const createPerson = (req, res) => {
 
   // Insertar en persons
   const insertPersonQuery = `
-    INSERT INTO persons (name, lastName, secondName, phone, address, birthDate, photo)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO persons (dni, name, lastName, secondName, phone, address, birthDate, photo)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   db.query(
     insertPersonQuery,
-    [name, lastName, secondName, phone, address, birthDate, photo],
+    [dni, name, lastName, secondName, phone, address, birthDate, photo],
     (err, result) => {
       if (err) {
         console.log(err);
@@ -115,12 +117,25 @@ const updatePerson = async (req, res) => {
 
 // get all persons
 const getAllPersons = (req, res) => {
-  db.query("SELECT * FROM persons", (err, result) => {
+  const query = `
+    SELECT 
+      persons.id_person,
+      persons.name,
+      persons.lastName,
+      persons.phone,
+      persons.address,
+      persons.birthDate,
+      persons.photo,
+      persons.dni,
+      users.email
+    FROM persons
+    LEFT JOIN users ON persons.id_person = users.id_person
+  `;
+
+  db.query(query, (err, result) => {
     if (err) {
       console.log(err);
-      res
-        .status(500)
-        .json({ message: "there was an error getting the persons" });
+      return res.status(500).json({ message: "Error al obtener las personas" });
     }
     res.json(result);
   });
